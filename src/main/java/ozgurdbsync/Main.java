@@ -16,7 +16,7 @@ public class Main {
 		
 		System.out.println("--BEGIN");
 		for(int i=0; i<ini.tableProps.size(); i++) {
-			TableProps tp=ini.tableProps.get(0);
+			TableProps tp=ini.tableProps.get(i);
 			ConArgs source=new ConArgs();
 			source.props=ini.srcProps;
 			source.schema=tp.schema;
