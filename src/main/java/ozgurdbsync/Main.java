@@ -12,6 +12,8 @@ public class Main {
 		
 		Ini ini=new Ini(args[0]);
 		
+		
+		
 		System.out.println("--BEGIN");
 		for(int i=0; i<ini.tableProps.size(); i++) {
 			TableProps tp=ini.tableProps.get(0);
