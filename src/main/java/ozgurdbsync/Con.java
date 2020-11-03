@@ -3,7 +3,6 @@ package ozgurdbsync;
 import java.sql.*;
 import java.util.*;
 
-
 public class Con {
 	final ConArgs args;
 	final Connection db;
@@ -171,10 +170,10 @@ public class Con {
 				vls.append(",");
 			}
 			cls.append(ci.name);
-			Object o=d.get(i);
-			if(o==null) {
+			Object o = d.get(i);
+			if (o == null) {
 				vls.append("null");
-			}else {
+			} else {
 				vls.append(ci.toSqlValue(o));
 			}
 		}
@@ -184,7 +183,7 @@ public class Con {
 
 		return cls.toString();
 	}
-	
+
 	public String toSqlUpdate(PkeyValue pkv) {
 		List<Object> d = data.get(pkv);
 		if (d == null)
@@ -195,40 +194,40 @@ public class Con {
 		cls.append("update  ");
 		cls.append(args.toFullTable());
 		cls.append(" set ");
-		boolean andW=false;
-		boolean virS=false;
+		boolean andW = false;
+		boolean virS = false;
 		for (int i = 0; i < orderedColumns.size(); i++) {
 			ColumnInfo ci = orderedColumns.get(i);
-			Object o=d.get(i);
-			if(primKeys.contains(ci.name)) {
-				if(andW) {
+			Object o = d.get(i);
+			if (primKeys.contains(ci.name)) {
+				if (andW) {
 					vls.append(" and ");
-				}else {
-					andW=true;
+				} else {
+					andW = true;
 				}
 				vls.append(ci.name);
-				if(o==null) {
+				if (o == null) {
 					vls.append("is null");
-				}else {
+				} else {
 					vls.append("=");
 					vls.append(ci.toSqlValue(o));
 				}
 
-			}else {
-				if(virS) {
+			} else {
+				if (virS) {
 					cls.append(" , ");
-				}else {
-					virS=true;
+				} else {
+					virS = true;
 				}
 				cls.append(ci.name);
 				cls.append("=");
-				if(o==null) {
+				if (o == null) {
 					cls.append("null");
-				}else {
+				} else {
 					cls.append(ci.toSqlValue(o));
 				}
 			}
-			
+
 		}
 		cls.append(" where ");
 		cls.append(vls);
@@ -236,7 +235,7 @@ public class Con {
 
 		return cls.toString();
 	}
-	
+
 	public String toSqlDelete(PkeyValue pkv) {
 		List<Object> d = data.get(pkv);
 		if (d == null)
@@ -246,30 +245,39 @@ public class Con {
 		cls.append("delete from  ");
 		cls.append(args.toFullTable());
 		cls.append(" where ");
-		boolean andW=false;
+		boolean andW = false;
 		for (int i = 0; i < orderedColumns.size(); i++) {
 			ColumnInfo ci = orderedColumns.get(i);
-			Object o=d.get(i);
-			if(primKeys.contains(ci.name)) {
-				if(andW) {
+			Object o = d.get(i);
+			if (primKeys.contains(ci.name)) {
+				if (andW) {
 					cls.append(" and ");
-				}else {
-					andW=true;
+				} else {
+					andW = true;
 				}
 				cls.append(ci.name);
-				if(o==null) {
+				if (o == null) {
 					cls.append("is null");
-				}else {
+				} else {
 					cls.append("=");
 					cls.append(ci.toSqlValue(o));
 				}
 
 			}
-			
+
 		}
 		cls.append(";");
 
 		return cls.toString();
+	}
+
+	public void disconnect() {
+		try {
+			if (db != null)
+				db.close();
+		} catch (Exception e) {
+		}
+
 	}
 
 }

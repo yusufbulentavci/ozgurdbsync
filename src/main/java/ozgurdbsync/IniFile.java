@@ -57,4 +57,8 @@ public class IniFile {
 		}
 		return Integer.parseInt(kv.get(key));
 	}
+	
+	public boolean containsSection(String section) {
+		return _entries.containsKey(section);
+	}
 }
