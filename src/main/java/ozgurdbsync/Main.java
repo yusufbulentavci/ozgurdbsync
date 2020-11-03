@@ -30,7 +30,9 @@ public class Main {
 			
 			
 			Con s=new Con(source);
+			s.initMeta();
 			Con d=new Con(dest);
+			d.initMeta();
 			s.compareSchema(d);
 			System.out.println("--Schema comparison success");
 			
