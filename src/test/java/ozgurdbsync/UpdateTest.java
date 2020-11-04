@@ -88,7 +88,7 @@ public class UpdateTest extends TestBase{
 		
 		System.out.println(update);
 		
-		Assert.assertEquals("update  SEMA.EMPLOYEE3 set NAME='XXX' , EMAIL='dhwani@javacodegeeks.com' where ID=1002;", update);
+		Assert.assertEquals("update  SEMA.EMPLOYEE3 set NAME=E'XXX' , EMAIL=E'dhwani@javacodegeeks.com' where ID=1002;", update);
 		
 	}
 

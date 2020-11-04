@@ -50,7 +50,7 @@ public class InsertTest extends TestBase{
 		Assert.assertTrue(ret.contains(new PkeyValue(1004)));
 		
 		String insertStr=con2.toSqlInsert(new PkeyValue(1004));
-		Assert.assertEquals("insert into EMPLOYEE2(ID,NAME,EMAIL) values(1004,'Vinod Kumar Kashyap','vinod@javacodegeeks.com');", insertStr);
+		Assert.assertEquals("insert into EMPLOYEE2(ID,NAME,EMAIL) values(1004,E'Vinod Kumar Kashyap',E'vinod@javacodegeeks.com');", insertStr);
 		
 	}
 

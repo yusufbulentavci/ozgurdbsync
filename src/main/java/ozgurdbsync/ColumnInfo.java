@@ -51,7 +51,7 @@ public class ColumnInfo {
 		return true;
 	}
 	 public  String singleQuotedString(String str) {
-	        StringBuilder result = new StringBuilder("'");
+	        StringBuilder result = new StringBuilder("E'");
 	        for (int i = 0; i < str.length(); i++) {
 	            char ch = str.charAt(i);
 	            if (ch == '\n') {
