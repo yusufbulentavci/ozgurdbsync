@@ -144,7 +144,7 @@ public class Con {
 				ColumnInfo df = dc.get(j);
 				if (df.name.equals(of.name)) {
 					Object dd = ddata.get(j);
-					if ((od != null && dd == null) || !od.equals(dd)) {
+					if (!java.util.Objects.equals(od, dd)) {
 						return true;
 					}
 				}
