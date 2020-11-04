@@ -13,23 +13,29 @@ sqlEngine=postgresql
 [source]
 
 url=jdbc:postgresql://localhost/test1
+
 user=testuser
+
 password=1
 
 [destination]
 
 url=jdbc:postgresql://localhost/test2
+
 user=testuser
+
 password=1
 
 [table-1]
 
 schema=sc1
+
 table=tbl1
 
 [table-2]
 
 schema=sc1
+
 table=tbl2
 
 
