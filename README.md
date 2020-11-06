@@ -46,3 +46,5 @@ Run
 
 java -jar ./ozgurdbsync-1.0-SNAPSHOT.jar ./my.ini
 
+Output will be written to standart and error 
+
