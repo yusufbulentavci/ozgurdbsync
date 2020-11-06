@@ -1,3 +1,7 @@
+
+![Logo](https://github.com/yusufbulentavci/ozgurdbsync/blob/main/src/test/resources/syncicon.png)
+
+
 # ozgurdbsync
 Compares and generates SQL DML scripts to synchronize source tables to destination tables in different databases.
 Do not make any modifications on databases; it only reports schema differences and generates DML scripts. 
