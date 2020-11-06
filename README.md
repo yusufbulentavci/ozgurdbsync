@@ -41,5 +41,6 @@ table=tbl2
 
 
 Run
+
 java -jar ./ozgurdbsync-1.0-SNAPSHOT.jar ./my.ini
 
