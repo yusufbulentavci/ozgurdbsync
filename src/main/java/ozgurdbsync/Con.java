@@ -6,7 +6,9 @@ import java.util.*;
 public class Con {
 	final ConArgs args;
 	final Connection db;
+	
 	List<String> primKeys = new ArrayList<>();
+	List<String> depends = new ArrayList<>();
 	Map<String, ColumnInfo> columns = new TreeMap<>();
 	List<ColumnInfo> orderedColumns = new ArrayList<>();
 	Map<PkeyValue, List<Object>> data = new HashMap<PkeyValue, List<Object>>();
@@ -19,6 +21,17 @@ public class Con {
 	public void initMeta() throws SQLException {
 		DatabaseMetaData meta;
 		meta = db.getMetaData();
+		ResultSet rs = meta.getImportedKeys(null, args.schema, args.table);
+		while (rs.next()) {
+			String fkTableName = rs.getString("PKTABLE_NAME");
+
+			String fkSchemaName = rs.getString("PKTABLE_SCHEM");
+			if(fkSchemaName!=null && (fkSchemaName.equals("PUBLIC") || fkSchemaName.equals("public"))) {
+				fkSchemaName=null;
+			}
+			
+			depends.add((fkSchemaName==null?"":fkSchemaName+".")+fkTableName);
+		}
 		ResultSet columns = meta.getColumns(null, args.schema, args.table, null);
 		int ind = 0;
 		while (columns.next()) {
@@ -52,15 +65,14 @@ public class Con {
 		String o = other.columns.toString();
 
 		if (!t.equals(o)) {
-			System.err.println("Columns not match:" + t + "<->" + o);
-			System.exit(-1);
+			return "Columns not match:" + t + "<->" + o;
+//			System.exit(-1);
 		}
 
 		t = String.join(",", primKeys);
 		o = String.join(",", other.primKeys);
 		if (!t.equals(o)) {
-			System.err.println("Primary keys not match:" + t + "<->" + o);
-			System.exit(-2);
+			return "Primary keys not match:" + t + "<->" + o;
 		}
 
 		return null;
@@ -278,6 +290,10 @@ public class Con {
 		} catch (Exception e) {
 		}
 
+	}
+
+	public List<String> getDepends() {
+		return this.depends;
 	}
 
 }
