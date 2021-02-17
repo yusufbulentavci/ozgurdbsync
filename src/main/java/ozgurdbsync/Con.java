@@ -29,8 +29,9 @@ public class Con {
 			if(fkSchemaName!=null && (fkSchemaName.equals("PUBLIC") || fkSchemaName.equals("public"))) {
 				fkSchemaName=null;
 			}
-			
+//			System.out.println(args.table+"->"+fkTableName);
 			depends.add((fkSchemaName==null?"":fkSchemaName+".")+fkTableName);
+			
 		}
 		ResultSet columns = meta.getColumns(null, args.schema, args.table, null);
 		int ind = 0;

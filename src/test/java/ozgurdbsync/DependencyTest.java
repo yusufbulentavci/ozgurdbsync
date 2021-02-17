@@ -33,10 +33,10 @@ public class DependencyTest extends TestBase{
 	@Test
 	public void orderTest() throws Exception{
 		Main.main(new String[] {"/home/rompg/workspace/ozgurdbsync/src/test/resources/dependency-test.ini"});
-		String result = Main.ordered.stream()
-			      .map(n -> String.valueOf(n))
-			      .collect(Collectors.joining("-", "{", "}"));
-		 System.out.println(result);
+//		String result = Main.ordered.stream()
+//			      .map(n -> String.valueOf(n))
+//			      .collect(Collectors.joining("-", "{", "}"));
+//		 System.out.println(result);
 	
 	}
 
