@@ -6,9 +6,6 @@
 Compares and generates SQL DML scripts to synchronize source tables to destination tables in different databases.
 Do not make any modifications on databases; it only reports schema differences and generates DML scripts. 
 
-Important!!
-
-Yet, it works only for postgresql
 
 Usage
 Generate an ini file to specify working environment.
