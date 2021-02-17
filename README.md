@@ -48,8 +48,9 @@ table=tbl2
 
 
 Run
-
-java -jar ./ozgurdbsync-1.0-SNAPSHOT.jar ./my.ini
-
+'''
+java -jar ./ozgurdbsync-jar-with-dependencies.jar
+ ./my.ini
+'''
 Output will be written to standart and error 
 
