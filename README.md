@@ -13,6 +13,7 @@ Below test1 and test2 databases should have sc1 schema and tbl1 and tbl2 tables 
 ```
 [general]
 sqlEngine=postgresql
+allTables=no
 
 [source]
 url=jdbc:postgresql://localhost/test1
