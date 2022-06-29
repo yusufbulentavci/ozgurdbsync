@@ -88,7 +88,7 @@ public class Con {
 			query = query + args.schema + ".";
 		}
 		query += args.table;
-		query +=" limit 10000";
+		query +=" limit 100000";
 
 		PreparedStatement ps = db.prepareStatement(query);
 		ResultSet rs = ps.executeQuery();
