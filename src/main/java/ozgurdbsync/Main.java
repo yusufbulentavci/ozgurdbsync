@@ -14,11 +14,13 @@ public class Main {
 //	public static List<String> ordered = new ArrayList<>();
 
 	public static void main(String[] args) throws IOException, SQLException {
-		if (args.length != 1)
-			throw new RuntimeException("Usage: java -cp ./ozgurdbsynch.jar ozgurdbsync/Main path.ini.file");
-
-		Ini ini = new Ini(args[0]);
-
+//		
+//		if (args.length != 1)
+//			throw new RuntimeException("Usage: java -cp ./ozgurdbsynch.jar ozgurdbsync/Main path.ini.file");
+//
+//		Ini ini = new Ini(args[0]);
+		Ini ini = new Ini("/home/ybavci/workspace/ozgurdbsync/src/test/resources/altin_test.ini");
+		
 		Map<String, TableProps> tableProps = new HashMap<String, TableProps>();
 
 		Map<String, List<String>> deps = new HashMap<String, List<String>>();
@@ -87,6 +89,7 @@ public class Main {
 				if (processed.contains(tpname)) {
 					continue;
 				}
+				
 				List<String> weneed = deps.get(tpname);
 				boolean notFound = false;
 				if (weneed != null) {
@@ -119,6 +122,12 @@ public class Main {
 				s.initMeta();
 				Con d = new Con(dest);
 				d.initMeta();
+				
+				if(!(s.hasPrimKeys() && d.hasPrimKeys())) {
+					System.out.println("--No primary keys:"+source.toFullTable()+" Bypassing");
+					continue;
+				}
+				
 				String cs = s.compareSchema(d);
 				if (cs != null) {
 					System.out.println(cs);
@@ -126,6 +135,8 @@ public class Main {
 				}
 				System.out.println("--Schema comparison success");
 
+				
+				
 				s.getData();
 				d.getData();
 

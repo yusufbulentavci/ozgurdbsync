@@ -15,7 +15,6 @@ public class DataTest extends TestBase{
 		ConArgs ca = testCon();
 		// HSQLDB table names are in uppercase
 		ca.table="EMPLOYEE";
-
 		Con con=new Con(ca);
 		con.initMeta();
 		con.getData();

@@ -10,22 +10,33 @@ public class Ini {
 	private IniFile file;
 
 	String sqlEngine;
+	String allTables;
 	ConnectProps srcProps;
 	ConnectProps destProps;
-	List<TableProps> tableProps=new ArrayList<>();
+	List<TableProps> tableProps;
+
 	public Ini(String fn) throws IOException {
 		this.file=new IniFile(fn);
 		this.sqlEngine=file.getString("general", "sqlEngine", "hsqldb");
+		this.allTables=file.getString("general", "allTables", "no");
 		
 		this.srcProps=getConnectProps("source");
 		this.destProps=getConnectProps("destination");
 	
-		for(int i=1; i< 1000; i++) {
-			String section="table-"+i;
-			if(!file.containsSection(section))
-				break;
-			tableProps.add(getTableProps(section));
+		if(allTables.equalsIgnoreCase("yes")) {
+			ConArgs source = new ConArgs();
+			source.props=srcProps;
+			tableProps=source.getTableProps();
+		}else {
+			tableProps=new ArrayList<>();
+			for(int i=1; i< 1000; i++) {
+				String section="table-"+i;
+				if(!file.containsSection(section))
+					break;
+				tableProps.add(getTableProps(section));
+			}
 		}
+		
 	}
 
 	private TableProps getTableProps(String section) {

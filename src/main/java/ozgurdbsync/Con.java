@@ -57,6 +57,9 @@ public class Con {
 			String cn = prims.getString("COLUMN_NAME");
 			primKeys.add(cn);
 		}
+		if(primKeys.size() == 0) {
+			System.out.println("--No primary key defined by "+args.toFullTable());
+		}
 		prims.close();
 	}
 
@@ -85,6 +88,7 @@ public class Con {
 			query = query + args.schema + ".";
 		}
 		query += args.table;
+		query +=" limit 10000";
 
 		PreparedStatement ps = db.prepareStatement(query);
 		ResultSet rs = ps.executeQuery();
@@ -295,6 +299,10 @@ public class Con {
 
 	public List<String> getDepends() {
 		return this.depends;
+	}
+
+	public boolean hasPrimKeys() {
+		return primKeys.size()>0;
 	}
 
 }
