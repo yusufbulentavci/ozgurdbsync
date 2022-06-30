@@ -15,11 +15,11 @@ public class Main {
 
 	public static void main(String[] args) throws IOException, SQLException {
 //		
-//		if (args.length != 1)
-//			throw new RuntimeException("Usage: java -cp ./ozgurdbsynch.jar ozgurdbsync/Main path.ini.file");
-//
-//		Ini ini = new Ini(args[0]);
-		Ini ini = new Ini("/home/ybavci/workspace/ozgurdbsync/src/test/resources/altin_test.ini");
+		if (args.length != 1)
+			throw new RuntimeException("Usage: java -cp ./ozgurdbsynch.jar ozgurdbsync/Main path.ini.file");
+
+		Ini ini = new Ini(args[0]);
+//		Ini ini = new Ini("/home/ybavci/workspace/ozgurdbsync/src/test/resources/altin_test.ini");
 
 		Map<String, TableProps> tableProps = new HashMap<String, TableProps>();
 
