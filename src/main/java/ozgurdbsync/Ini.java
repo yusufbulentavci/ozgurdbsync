@@ -17,13 +17,13 @@ public class Ini {
 
 //	public Integer dataCompareMaxRow=100000;
 
-	public Integer dataCompareDiskSizeTotalInMB;
+	public Integer dataCompareDiskSizeLimitInMB;
 
 	public Ini(String fn) throws IOException {
 		this.file=new IniFile(fn);
 		this.sqlEngine=file.getString("general", "sqlEngine", "hsqldb");
 		this.allTables=file.getString("general", "allTables", "no");
-		this.dataCompareDiskSizeTotalInMB=file.getInt("general", "dataCompareDiskSizeTotalInMB", 1024);
+		this.dataCompareDiskSizeLimitInMB=file.getInt("general", "dataCompareDiskSizeLimitInMB", 1024);
 		
 		this.srcProps=getConnectProps("source");
 		this.destProps=getConnectProps("destination");

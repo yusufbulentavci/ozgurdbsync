@@ -14,6 +14,7 @@ Below test1 and test2 databases should have sc1 schema and tbl1 and tbl2 tables 
 [general]
 sqlEngine=postgresql
 allTables=no
+dataCompareDiskSizeLimitInMB=1024
 
 [source]
 url=jdbc:postgresql://localhost/test1

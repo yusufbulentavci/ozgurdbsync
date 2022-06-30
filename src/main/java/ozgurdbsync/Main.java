@@ -167,7 +167,7 @@ public class Main {
 				
 				double inMB=s.getOnDiskSize()+d.getOnDiskSize();
 				System.out.println("--Total disk size need:" + inMB);
-				if(inMB > ini.dataCompareDiskSizeTotalInMB) {
+				if(inMB > ini.dataCompareDiskSizeLimitInMB) {
 					System.out.println("--Memory need over limit ; Bypassing this table");
 					continue;
 				}
