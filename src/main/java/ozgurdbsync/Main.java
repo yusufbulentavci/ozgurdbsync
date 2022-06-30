@@ -15,11 +15,11 @@ public class Main {
 
 	public static void main(String[] args) throws IOException, SQLException {
 //		
-		if (args.length != 1)
-			throw new RuntimeException("Usage: java -cp ./ozgurdbsynch.jar ozgurdbsync/Main path.ini.file");
-
-		Ini ini = new Ini(args[0]);
-//		Ini ini = new Ini("/home/ybavci/workspace/ozgurdbsync/src/test/resources/altin_test.ini");
+//		if (args.length != 1)
+//			throw new RuntimeException("Usage: java -cp ./ozgurdbsynch.jar ozgurdbsync/Main path.ini.file");
+//
+//		Ini ini = new Ini(args[0]);
+		Ini ini = new Ini("/home/ybavci/workspace/ozgurdbsync/src/test/resources/altin_test.ini");
 
 		Map<String, TableProps> tableProps = new HashMap<String, TableProps>();
 
@@ -79,7 +79,8 @@ public class Main {
 		System.out.println("--BEGIN");
 		Set<String> processed = new HashSet<>();
 		boolean success = false;
-		for (int i = 0; i < 10000; i++) {
+		boolean ignoreDependency = false;
+		for (int i = 0; i < 11000; i++) {
 //			System.out.print(".");
 			if (processed.size() == tableProps.size()) {
 				success = true;
@@ -92,26 +93,26 @@ public class Main {
 //					System.out.println("-- already processed; continue");
 					continue;
 				}
-				
 
-				List<String> weneed = deps.get(tpname);
-				boolean notFound = false;
-				if (weneed != null) {
-					for (String str : weneed) {
-						if (!processed.contains(str)) {
-							notFound = true;
-							break;
+				if (!ignoreDependency) {
+					List<String> weneed = deps.get(tpname);
+					boolean notFound = false;
+					if (weneed != null) {
+						for (String str : weneed) {
+							if (!processed.contains(str)) {
+								notFound = true;
+								break;
+							}
 						}
 					}
+					if (notFound)
+						continue;
 				}
-				if (notFound)
-					continue;
-
 				processed.add(tpname);
 
 				System.out.println("--------------------------------------------------");
 				System.out.println("--" + tpname);
-				
+
 				TableProps tp = tpe.getValue();
 
 				ConArgs source = new ConArgs();
@@ -119,7 +120,6 @@ public class Main {
 				source.schema = tp.schema;
 				source.table = tp.table;
 
-				
 				System.out.println("--Schema comparison table:" + source.toFullTable());
 				ConArgs dest = new ConArgs();
 				dest.props = ini.destProps;
@@ -130,14 +130,13 @@ public class Main {
 				s.initMeta();
 				Con d = new Con(dest);
 				d.initMeta();
-				
+
 				System.out.println("--Estimated Source row size:" + s.getRowSize());
 				System.out.println("--Estimated Destination row size:" + d.getRowSize());
 //				
-				
+
 				System.out.println("--Source disk size(MB):" + s.getOnDiskSize());
 				System.out.println("--Destination disk size(MB):" + d.getOnDiskSize());
-				
 
 				System.out.println("--Schema comparison begin");
 				String cs = s.compareSchema(d);
@@ -163,15 +162,13 @@ public class Main {
 //					System.out.println("--Source or destination table row count over limit ; Bypassing this table");
 //					continue;
 //				}
-				
-				
-				double inMB=s.getOnDiskSize()+d.getOnDiskSize();
+
+				double inMB = s.getOnDiskSize() + d.getOnDiskSize();
 				System.out.println("--Total disk size need:" + inMB);
-				if(inMB > ini.dataCompareDiskSizeLimitInMB) {
+				if (inMB > ini.dataCompareDiskSizeLimitInMB) {
 					System.out.println("--Memory need over limit ; Bypassing this table");
 					continue;
 				}
-				
 
 				System.out.println("--Getting data");
 				s.getData();
@@ -204,11 +201,25 @@ public class Main {
 //				s.disconnect();
 //				d.disconnect();
 			}
+			if (i == 9998) {
+				System.out.println("----------------------------------------------------");
+				System.out.println("----------------------------------------------------");
+				System.out.println("--We will ignore dependency then");
+				System.out.println("--FAILED; CYCLIC DEPENDENCY");
+				System.out.println("--These are tables left...");
+				ignoreDependency = true;
+				for (String string : tableProps.keySet()) {
+					if (!processed.contains(string)) {
+						System.out.println("--" + string);
+					}
+				}
+			}
 		}
 		if (success) {
 			System.out.println("--END SUCCESS");
 		} else {
-			System.out.println("--FAILED; CYCLIC DEPENDENCY");
+			System.out.println("--END FAILED");
+
 		}
 
 	}
