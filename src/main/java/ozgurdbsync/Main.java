@@ -17,10 +17,10 @@ public class Main {
 //		
 		if (args.length != 1)
 			throw new RuntimeException("Usage: java -cp ./ozgurdbsynch.jar ozgurdbsync/Main path.ini.file");
-//
+
 		Ini ini = new Ini(args[0]);
-	//	Ini ini = new Ini("/home/ybavci/workspace/ozgurdbsync/src/test/resources/altin_test.ini");
-		
+//		Ini ini = new Ini("/home/ybavci/workspace/ozgurdbsync/src/test/resources/altin_test.ini");
+
 		Map<String, TableProps> tableProps = new HashMap<String, TableProps>();
 
 		Map<String, List<String>> deps = new HashMap<String, List<String>>();
@@ -30,18 +30,20 @@ public class Main {
 			source.props = ini.srcProps;
 			source.schema = tp.schema;
 			source.table = tp.table;
+//			System.out.println("--" + source.toFullTable());
 			String tn = source.toFullTable();
 			tableProps.put(tn, tp);
 
+//			System.out.println("--"+source.toFullTable());
 			Con s = new Con(source);
 			s.initMeta();
 			List<String> d = s.getDepends();
 			deps.put(tn, d);
 		}
 
-		for (Entry<String, List<String>> e : deps.entrySet()) {
-			System.out.println("-- "+e.getKey() + "->" + e.getValue().toString());
-		}
+//		for (Entry<String, List<String>> e : deps.entrySet()) {
+//			System.out.println("-- "+e.getKey() + "->" + e.getValue().toString());
+//		}
 
 //		boolean ready = false;
 //		for (int i = 0; i < 10000; i++) {
@@ -76,20 +78,22 @@ public class Main {
 
 		System.out.println("--BEGIN");
 		Set<String> processed = new HashSet<>();
-		boolean success=false;
-		for (int i = 0; i < 1000; i++) {
+		boolean success = false;
+		for (int i = 0; i < 10000; i++) {
+//			System.out.print(".");
 			if (processed.size() == tableProps.size()) {
-				success=true;
+				success = true;
 				break;
 			}
 
 			for (Entry<String, TableProps> tpe : tableProps.entrySet()) {
 				String tpname = tpe.getKey();
-//				System.out.println(tpname);
 				if (processed.contains(tpname)) {
+//					System.out.println("-- already processed; continue");
 					continue;
 				}
 				
+
 				List<String> weneed = deps.get(tpname);
 				boolean notFound = false;
 				if (weneed != null) {
@@ -105,6 +109,9 @@ public class Main {
 
 				processed.add(tpname);
 
+				System.out.println("--------------------------------------------------");
+				System.out.println("--" + tpname);
+				
 				TableProps tp = tpe.getValue();
 
 				ConArgs source = new ConArgs();
@@ -112,6 +119,7 @@ public class Main {
 				source.schema = tp.schema;
 				source.table = tp.table;
 
+				
 				System.out.println("--Schema comparison table:" + source.toFullTable());
 				ConArgs dest = new ConArgs();
 				dest.props = ini.destProps;
@@ -123,22 +131,52 @@ public class Main {
 				Con d = new Con(dest);
 				d.initMeta();
 				
-				if(!(s.hasPrimKeys() && d.hasPrimKeys())) {
-					System.out.println("--No primary keys:"+source.toFullTable()+" Bypassing");
-					continue;
-				}
+				System.out.println("--Estimated Source row size:" + s.getRowSize());
+				System.out.println("--Estimated Destination row size:" + d.getRowSize());
+//				
 				
+				System.out.println("--Source disk size(MB):" + s.getOnDiskSize());
+				System.out.println("--Destination disk size(MB):" + d.getOnDiskSize());
+				
+
+				System.out.println("--Schema comparison begin");
 				String cs = s.compareSchema(d);
 				if (cs != null) {
 					System.out.println(cs);
-					System.exit(-1);
+					continue;
 				}
 				System.out.println("--Schema comparison success");
+				if (!(s.hasPrimKeys() && d.hasPrimKeys())) {
+					System.out.println("--No primary keys:" + source.toFullTable() + " Bypassing");
+					continue;
+				}
+				System.out.println("--Compare row counts");
+				System.out.println("--Source row count:" + s.getRowCount());
+				System.out.println("--Destination row count:" + d.getRowCount());
 
+//				if (s.getRowCount() == null || d.getRowCount() == null) {
+//					System.out.println("--Table row count couldnt be fetched; Bypassing this table");
+//					continue;
+//				}
+//
+//				if (s.getRowCount() > ini.dataCompareMaxRow || d.getRowCount() > ini.dataCompareMaxRow) {
+//					System.out.println("--Source or destination table row count over limit ; Bypassing this table");
+//					continue;
+//				}
 				
 				
+				double inMB=s.getOnDiskSize()+d.getOnDiskSize();
+				System.out.println("--Total disk size need:" + inMB);
+				if(inMB > ini.dataCompareDiskSizeTotalInMB) {
+					System.out.println("--Memory need over limit ; Bypassing this table");
+					continue;
+				}
+				
+
+				System.out.println("--Getting data");
 				s.getData();
 				d.getData();
+				System.out.println("--Getting data; done");
 
 				System.out.println("--Deletes");
 				List<PkeyValue> ret = s.diffDel(d);
@@ -162,16 +200,16 @@ public class Main {
 
 				System.out.println("--Diff data success");
 
-				s.disconnect();
-				d.disconnect();
+				System.out.println("--------------------------------------------------");
+//				s.disconnect();
+//				d.disconnect();
 			}
 		}
-		if(success) {
+		if (success) {
 			System.out.println("--END SUCCESS");
-		}else {
+		} else {
 			System.out.println("--FAILED; CYCLIC DEPENDENCY");
 		}
-
 
 	}
 

@@ -7,4 +7,8 @@ public class ConnectProps {
 
 	public ConnectProps() {
 	}
+	
+	public boolean isPostgres() {
+		return url.indexOf("postgres")>=0;
+	}
 }

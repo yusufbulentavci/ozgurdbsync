@@ -5,66 +5,79 @@ import java.util.*;
 
 public class Con {
 	final ConArgs args;
-	final Connection db;
-	
+//	final Connection db;
+
+	long rowSize=0;
 	List<String> primKeys = new ArrayList<>();
 	List<String> depends = new ArrayList<>();
 	Map<String, ColumnInfo> columns = new TreeMap<>();
 	List<ColumnInfo> orderedColumns = new ArrayList<>();
 	Map<PkeyValue, List<Object>> data = new HashMap<PkeyValue, List<Object>>();
+	private Long rowCount = null;
+	private Long onDiskSize = null;
 
 	public Con(ConArgs a) throws SQLException {
 		this.args = a;
-		db = a.getCon();
 	}
 
 	public void initMeta() throws SQLException {
+		System.out.println("--Init metadata " + args.toFullTable());
 		DatabaseMetaData meta;
-		meta = db.getMetaData();
-		ResultSet rs = meta.getImportedKeys(null, args.schema, args.table);
-		while (rs.next()) {
-			String fkTableName = rs.getString("PKTABLE_NAME");
+		try (Connection db = args.getCon()) {
+			meta = db.getMetaData();
+			ResultSet rs = meta.getImportedKeys(null, args.schema, args.table);
+			while (rs.next()) {
+				String fkTableName = rs.getString("PKTABLE_NAME");
 
-			String fkSchemaName = rs.getString("PKTABLE_SCHEM");
-			if(fkSchemaName!=null && (fkSchemaName.equals("PUBLIC") || fkSchemaName.equals("public"))) {
-				fkSchemaName=null;
-			}
+				String fkSchemaName = rs.getString("PKTABLE_SCHEM");
+				if (fkSchemaName != null && (fkSchemaName.equals("PUBLIC") || fkSchemaName.equals("public"))) {
+					fkSchemaName = null;
+				}
 //			System.out.println(args.table+"->"+fkTableName);
-			depends.add((fkSchemaName==null?"":fkSchemaName+".")+fkTableName);
-			
-		}
-		ResultSet columns = meta.getColumns(null, args.schema, args.table, null);
-		int ind = 0;
-		while (columns.next()) {
-			String columnName = columns.getString("COLUMN_NAME");
-			String datatype = columns.getString("DATA_TYPE");
-			String columnsize = columns.getString("COLUMN_SIZE");
-			String decimaldigits = columns.getString("DECIMAL_DIGITS");
-			boolean isNullable = columns.getString("IS_NULLABLE").equals("YES");
-			boolean is_autoIncrment = columns.getString("IS_AUTOINCREMENT").equals("YES");
-			// Printing results
+				depends.add((fkSchemaName == null ? "" : fkSchemaName + ".") + fkTableName);
+
+			}
+			ResultSet columns = meta.getColumns(null, args.schema, args.table, null);
+			int ind = 0;
+			rowSize=0;
+			while (columns.next()) {
+				String columnName = columns.getString("COLUMN_NAME");
+				String datatype = columns.getString("DATA_TYPE");
+				Long columnsize = columns.getLong("COLUMN_SIZE");
+				if(columnsize>4000) {
+					columnsize=4000l;
+				}
+				rowSize += columnsize;
+//				System.out.println(columnName+"-"+columnsize);
+				String decimaldigits = columns.getString("DECIMAL_DIGITS");
+				boolean isNullable = columns.getString("IS_NULLABLE").equals("YES");
+				boolean is_autoIncrment = columns.getString("IS_AUTOINCREMENT").equals("YES");
+				// Printing results
 //			String str = datatype + "---" + columnsize + "---" + decimaldigits + "---" + isNullable + "---"
 //					+ is_autoIncrment;
-			ColumnInfo ci = new ColumnInfo(ind++, columnName, Integer.parseInt(datatype), is_autoIncrment, isNullable);
-			this.columns.put(columnName, ci);
-			this.orderedColumns.add(ci);
+				ColumnInfo ci = new ColumnInfo(ind++, columnName, Integer.parseInt(datatype), is_autoIncrment,
+						isNullable);
+				this.columns.put(columnName, ci);
+				this.orderedColumns.add(ci);
 
-		}
-		columns.close();
+			}
+			columns.close();
 
-		ResultSet prims = meta.getPrimaryKeys(null, args.schema, args.table);
-		while (prims.next()) {
-			String cn = prims.getString("COLUMN_NAME");
-			primKeys.add(cn);
+			ResultSet prims = meta.getPrimaryKeys(null, args.schema, args.table);
+			while (prims.next()) {
+				String cn = prims.getString("COLUMN_NAME");
+				primKeys.add(cn);
+			}
+//		if(primKeys.size() == 0) {
+//			System.out.println("--No primary key defined by "+args.toFullTable());
+//		}
+			prims.close();
 		}
-		if(primKeys.size() == 0) {
-			System.out.println("--No primary key defined by "+args.toFullTable());
-		}
-		prims.close();
 	}
 
 	public String compareSchema(Con other) {
 
+		System.out.println("--Start: " + this.args.toFullTable());
 		String t = columns.toString();
 		String o = other.columns.toString();
 
@@ -79,6 +92,8 @@ public class Con {
 			return "Primary keys not match:" + t + "<->" + o;
 		}
 
+		System.out.println("--Success: " + this.args.toFullTable());
+
 		return null;
 	}
 
@@ -88,27 +103,73 @@ public class Con {
 			query = query + args.schema + ".";
 		}
 		query += args.table;
-		query +=" limit 100000";
+		try (Connection db = args.getCon()) {
+			PreparedStatement ps = db.prepareStatement(query);
+			ResultSet rs = ps.executeQuery();
+			while (rs.next()) {
+				PkeyValue pv = new PkeyValue();
+				for (String pk : primKeys) {
+					Object pvp = rs.getObject(pk);
+					pv.add(pvp);
+				}
 
-		PreparedStatement ps = db.prepareStatement(query);
-		ResultSet rs = ps.executeQuery();
-		while (rs.next()) {
-			PkeyValue pv = new PkeyValue();
-			for (String pk : primKeys) {
-				Object pvp = rs.getObject(pk);
-				pv.add(pvp);
+				String pri = null;
+				List<Object> row = new ArrayList<Object>();
+				for (int i = 0; i < orderedColumns.size(); i++) {
+					ColumnInfo ci = orderedColumns.get(i);
+					Object o = rs.getObject(ci.name);
+					row.add(o);
+				}
+				data.put(pv, row);
 			}
-
-			String pri = null;
-			List<Object> row = new ArrayList<Object>();
-			for (int i = 0; i < orderedColumns.size(); i++) {
-				ColumnInfo ci = orderedColumns.get(i);
-				Object o = rs.getObject(ci.name);
-				row.add(o);
-			}
-			data.put(pv, row);
 		}
+	}
+	
+	public Long getOnDiskSize() throws SQLException {
+		if (onDiskSize != null) {
+			return onDiskSize;
+		}
+		
+		if(!args.isPostgres()) {
+			onDiskSize=1l;
+		}else {
+			
+			String query = "select pg_total_relation_size('";
+			if (this.args.schema != null) {
+				query = query + args.schema + ".";
+			}
+			query += args.table;
+			query += "')";
+			try (Connection db = args.getCon()) {
+				PreparedStatement ps = db.prepareStatement(query);
+				ResultSet rs = ps.executeQuery();
+				if (rs.next()) {
+//					System.err.println(query+":"+rs.getLong(1));
+					this.onDiskSize = rs.getLong(1)/(1024*1024);
+				}
+			}
+		}
+		
+		return onDiskSize;
+	}
 
+	public Long getRowCount() throws SQLException {
+		if (rowCount != null) {
+			return rowCount;
+		}
+		String query = "select count(*) from ";
+		if (this.args.schema != null) {
+			query = query + args.schema + ".";
+		}
+		query += args.table;
+		try (Connection db = args.getCon()) {
+			PreparedStatement ps = db.prepareStatement(query);
+			ResultSet rs = ps.executeQuery();
+			if (rs.next()) {
+				this.rowCount = rs.getLong(1);
+			}
+		}
+		return rowCount;
 	}
 
 	public List<PkeyValue> diffDel(Con con) {
@@ -288,21 +349,25 @@ public class Con {
 		return cls.toString();
 	}
 
-	public void disconnect() {
-		try {
-			if (db != null)
-				db.close();
-		} catch (Exception e) {
-		}
-
-	}
+//	public void disconnect() {
+//		try {
+//			if (db != null)
+//				db.close();
+//		} catch (Exception e) {
+//		}
+//
+//	}
 
 	public List<String> getDepends() {
 		return this.depends;
 	}
 
 	public boolean hasPrimKeys() {
-		return primKeys.size()>0;
+		return primKeys.size() > 0;
+	}
+
+	public long getRowSize() {
+		return rowSize;
 	}
 
 }

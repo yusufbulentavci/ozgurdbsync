@@ -55,4 +55,8 @@ public class ConArgs{
 		}
 		return tableProps;
 	}
+	
+	boolean isPostgres() {
+		return props.isPostgres();
+	}
 }
