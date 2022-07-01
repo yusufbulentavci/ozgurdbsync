@@ -38,8 +38,7 @@ table=tbl2
 
 # Run
 ```
-java -jar ./ozgurdbsync-jar-with-dependencies.jar
- ./my.ini
+java -jar ./ozgurdbsync-jar-with-dependencies.jar  java -cp ./ozgurdbsync-jar-with-dependencies.jar  ozgurdbsync.Main ./my.ini
 ```
 Output will be written to standart and error 
 
