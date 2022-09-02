@@ -46,6 +46,15 @@
 					</descriptorRefs>
 					<finalName>ozgurdbsync</finalName>
 				</configuration>
+				<executions>
+					<execution>
+						<id>dist-assembly</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>
