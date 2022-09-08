@@ -42,3 +42,7 @@ java -cp ./ozgurdbsync-jar-with-dependencies.jar  ozgurdbsync.Main ./my.ini
 ```
 Output will be written to standart and error 
 
+# 1.3.2
+Estimatedler kaldirilacak
+No primary key ise de satir sayisina bakilacak
+

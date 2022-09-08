@@ -1,9 +1,11 @@
 package ozgurdbsync;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import junit.framework.Assert;
 
+@Ignore
 public class IniTest {
 
 

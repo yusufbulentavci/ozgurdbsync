@@ -5,7 +5,7 @@
 	<groupId>ozgur</groupId>
 	<artifactId>ozgurdbsync</artifactId>
 	<packaging>jar</packaging>
-	<version>1.3.1</version>
+	<version>1.3.2</version>
 	<name>pgdatasynctr</name>
 	<url>http://maven.apache.org</url>
 

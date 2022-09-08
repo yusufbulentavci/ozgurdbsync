@@ -18,8 +18,8 @@ public class Main {
 //		if (args.length != 1)
 //			throw new RuntimeException("Usage: java -cp ./ozgurdbsynch.jar ozgurdbsync/Main path.ini.file");
 //
-//		Ini ini = new Ini(args[0]);
-		Ini ini = new Ini("/home/ybavci/workspace/ozgurdbsync/src/test/resources/altin_test.ini");
+		Ini ini = new Ini(args[0]);
+//		Ini ini = new Ini("/home/ybavci/workspace/ozgurdbsync/src/test/resources/altin_test.ini");
 
 		Map<String, TableProps> tableProps = new HashMap<String, TableProps>();
 
@@ -131,8 +131,8 @@ public class Main {
 				Con d = new Con(dest);
 				d.initMeta();
 
-				System.out.println("--Estimated Source row size:" + s.getRowSize());
-				System.out.println("--Estimated Destination row size:" + d.getRowSize());
+//				System.out.println("--Estimated Source row size:" + s.getRowSize());
+//				System.out.println("--Estimated Destination row size:" + d.getRowSize());
 //				
 
 				System.out.println("--Source disk size(MB):" + s.getOnDiskSize());
@@ -145,13 +145,11 @@ public class Main {
 					continue;
 				}
 				System.out.println("--Schema comparison success");
-				if (!(s.hasPrimKeys() && d.hasPrimKeys())) {
-					System.out.println("--No primary keys:" + source.toFullTable() + " Bypassing");
-					continue;
-				}
 				System.out.println("--Compare row counts");
 				System.out.println("--Source row count:" + s.getRowCount());
 				System.out.println("--Destination row count:" + d.getRowCount());
+
+				
 
 //				if (s.getRowCount() == null || d.getRowCount() == null) {
 //					System.out.println("--Table row count couldnt be fetched; Bypassing this table");
@@ -170,6 +168,11 @@ public class Main {
 					continue;
 				}
 
+				if (!(s.hasPrimKeys() && d.hasPrimKeys())) {
+					System.out.println("--No primary keys:" + source.toFullTable() + " Bypassing");
+					continue;
+				}
+				
 				System.out.println("--Getting data");
 				s.getData();
 				d.getData();

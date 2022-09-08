@@ -44,7 +44,7 @@ public class IniFile {
 
 	public String getString(String section, String key, String defaultvalue) {
 		Map<String, String> kv = _entries.get(section);
-		if (kv == null) {
+		if (kv == null || !kv.containsKey(key)) {
 			return defaultvalue;
 		}
 		return kv.get(key);
@@ -52,7 +52,7 @@ public class IniFile {
 
 	public int getInt(String section, String key, int defaultvalue) {
 		Map<String, String> kv = _entries.get(section);
-		if (kv == null) {
+		if (kv == null|| !kv.containsKey(key)) {
 			return defaultvalue;
 		}
 		return Integer.parseInt(kv.get(key));
